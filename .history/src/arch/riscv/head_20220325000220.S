@@ -9,8 +9,8 @@
 #include <config.h>
 #include <util.h>
 //参考https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md
-.section .boot.text, "ax"//编辑程序段，ax指可分配可执行
-.global _start//定义 _start 为外部程序可以访问的标签
+.section .boot.text, "ax"
+.global _start
 .extern init_kernel
 .extern kernel_stack_alloc
 .extern __global_pointer$
