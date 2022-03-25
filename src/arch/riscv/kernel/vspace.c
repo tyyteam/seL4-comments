@@ -109,8 +109,12 @@ BOOT_CODE VISIBLE void map_kernel_window(void)
      * KERNEL_ELF_PHYS_BASE  */
     assert(CONFIG_PT_LEVELS > 1 && CONFIG_PT_LEVELS <= 4);
 
+    /* cy 下面开始映射内核区的虚拟地址空间 */
+
     /* kernel window starts at PPTR_BASE */
     word_t pptr = PPTR_BASE;
+
+    /* cy 映射Physical Memory Window这块的第一级页表 */
 
     /* first we map in memory from PADDR_BASE */
     word_t paddr = PADDR_BASE;
@@ -118,11 +122,15 @@ BOOT_CODE VISIBLE void map_kernel_window(void)
         assert(IS_ALIGNED(pptr, RISCV_GET_LVL_PGSIZE_BITS(0)));
         assert(IS_ALIGNED(paddr, RISCV_GET_LVL_PGSIZE_BITS(0)));
 
+        /* cy 内核根页表，映射一个一级地址，pte_next生成一个pte(页表项)，每个页表项下空间为2^30bit*/
         kernel_root_pageTable[RISCV_GET_PT_INDEX(pptr, 0)] = pte_next(paddr, true);
 
         pptr += RISCV_GET_LVL_PGSIZE(0);
         paddr += RISCV_GET_LVL_PGSIZE(0);
     }
+
+    /* cy 映射内核代码所在的1GB空间 */
+    
     /* now we should be mapping the 1GiB kernel base */
     assert(pptr == PPTR_TOP);
     pptr = ROUND_DOWN(KERNEL_ELF_BASE, RISCV_GET_LVL_PGSIZE_BITS(0));

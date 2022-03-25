@@ -190,11 +190,29 @@ static BOOT_CODE bool_t try_init_kernel(
     cap_t root_cnode_cap;
     cap_t it_pd_cap;
     cap_t it_ap_cap;
-    cap_t ipcbuf_cap;
+    cap_t ipcbuf_cap; 
+    /* cy 
+    内核启动代码的物理位置 
+
+    kpptr_to_paddr是将内核代码对应的虚拟地址转化为实际物理地址，
+    这里是 KERNEL_ELF_BASE - KERNEL_ELF_BASE_OFFSET，
+    其中KERNEL_ELF_BASE_OFFSET（0xffffffff80000000） = KERNEL_ELF_BASE(0xffffffff80100000) - KERNEL_ELF_PADDR_BASE（0x00100000），
+    KERNEL_ELF_BASE(0xffffffff80100000) = PPTR_TOP（0xffffffff80000000）+ KERNEL_ELF_PADDR_BASE（0x00100000）,
+    KERNEL_ELF_BASE_OFFSET也就是PPTR_TOP
+    */
     p_region_t boot_mem_reuse_p_reg = ((p_region_t) {
         kpptr_to_paddr((void *)KERNEL_ELF_BASE), kpptr_to_paddr(ki_boot_end)
     });
+    /* cy 
+    内核启动代码的虚拟位置
+
+    物理地址 + PPTR_BASE_OFFSET 
+    PPTR_BASE_OFFSET = PPTR_BASE（0xffffff8000000000） - PADDR_BASE（0x00000000）
+    */
     region_t boot_mem_reuse_reg = paddr_to_pptr_reg(boot_mem_reuse_p_reg);
+    /* cy
+    user image的虚拟位置
+    */
     region_t ui_reg = paddr_to_pptr_reg((p_region_t) {
         ui_p_reg_start, ui_p_reg_end
     });
@@ -216,6 +234,8 @@ static BOOT_CODE bool_t try_init_kernel(
     bi_frame_vptr = ipcbuf_vptr + BIT(PAGE_BITS);
     extra_bi_frame_vptr = bi_frame_vptr + BIT(BI_FRAME_SIZE_BITS);
 
+    /* cy
+    将内核代码映射到实际的物理区域 */
     map_kernel_window();
 
     /* initialise the CPU */

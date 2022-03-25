@@ -36,9 +36,12 @@
 
 #endif /* [not] __ASSEMBLER__ */
 
+/* cy 得到2^n*/
 #define BIT(n) (UL_CONST(1) << (n))
+/* cy 得到2^n - 1*/
 #define MASK(n) (BIT(n) - UL_CONST(1))
 #define IS_ALIGNED(n, b) (!((n) & MASK(b)))
+/* cy 末尾b位置0 */
 #define ROUND_DOWN(n, b) (((n) >> (b)) << (b))
 #define ROUND_UP(n, b) (((((n) - UL_CONST(1)) >> (b)) + UL_CONST(1)) << (b))
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
