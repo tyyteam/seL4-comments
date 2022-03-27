@@ -33,7 +33,7 @@
  *                |  |         Kernel ELF          |
  *            ----|  +-------------KERNEL_ELF_BASE-+ --+ 2^64 - 2GiB + (KERNEL_ELF_PADDR_BASE % 1GiB)
  *            |   |  |                             |
- *            |   -> +-----------------------------+ --+ 2^64 - 2GiB = (KERNEL_ELF_BASE % 1GiB)//此处应该是除符号
+ *            |   -> +-----------------------------+ --+ 2^64 - 2GiB = (KERNEL_ELF_BASE % 1GiB)
  * Shared 1GiB|      |                             |   |
  * table entry|      |           PSpace            |   |
  *            |      |  (direct kernel mappings)   |   +----+
