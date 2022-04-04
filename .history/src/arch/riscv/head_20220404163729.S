@@ -49,7 +49,7 @@ _start:
    *    a6/x16: hart ID (SMP only, unused on non-SMP)
    *    a7/x17: core ID (SMP only, unused on non-SMP)
    */
-  jal init_kernel//跳转到kernel/src/riscv/kernel/boot.c的init_kernel函数，上面是参数
+  jal init_kernel//跳转到kernel/src/riscv/kernel/boot.c
 
   /* Restore the initial thread. Note that the function restore_user_context()
    * could technically also be called at the end of init_kernel() directly,

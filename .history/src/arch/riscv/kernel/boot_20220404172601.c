@@ -109,7 +109,6 @@ BOOT_CODE static void init_irqs(cap_t root_cnode_cap)
 }
 
 /* ASM symbol for the CPU initialisation trap. */
-/*CY 内陷处理函数定义在src/arch/riscv/traps.S */
 extern char trap_entry[1];
 
 /* This and only this function initialises the CPU. It does NOT initialise any kernel state. */
@@ -125,12 +124,10 @@ BOOT_CODE static void init_fpu(void)
 
 BOOT_CODE static void init_cpu(void)
 {
-    /*CY 激活内核虚拟空间，实际上就是设置页表寄存器*/
+
     activate_kernel_vspace();
     /* Write trap entry address to stvec */
-    /*CY stvec寄存器中存放的是内陷处理函数入口地址 */
     write_stvec((word_t)trap_entry);
-    /*CY 初始化中断请求控制器 */
     initLocalIRQController();
 #ifndef CONFIG_KERNEL_MCS
     initTimer();
@@ -194,7 +191,7 @@ static BOOT_CODE bool_t try_init_kernel(
     cap_t it_pd_cap;
     cap_t it_ap_cap;
     cap_t ipcbuf_cap; 
-    /*CY
+    /* cy 
     内核启动代码的物理位置 
 
     kpptr_to_paddr是将内核代码对应的虚拟地址转化为实际物理地址，
@@ -206,13 +203,16 @@ static BOOT_CODE bool_t try_init_kernel(
     p_region_t boot_mem_reuse_p_reg = ((p_region_t) {
         kpptr_to_paddr((void *)KERNEL_ELF_BASE), kpptr_to_paddr(ki_boot_end)
     });
-    /*CY 内核启动代码的虚拟位置
+    /* cy 
+    内核启动代码的虚拟位置
 
     物理地址 + PPTR_BASE_OFFSET 
     PPTR_BASE_OFFSET = PPTR_BASE（0xffffff8000000000） - PADDR_BASE（0x00000000）
     */
     region_t boot_mem_reuse_reg = paddr_to_pptr_reg(boot_mem_reuse_p_reg);
-    /*CY user image的虚拟位置 */
+    /* cy
+    user image的虚拟位置
+    */
     region_t ui_reg = paddr_to_pptr_reg((p_region_t) {
         ui_p_reg_start, ui_p_reg_end
     });
@@ -234,7 +234,8 @@ static BOOT_CODE bool_t try_init_kernel(
     bi_frame_vptr = ipcbuf_vptr + BIT(PAGE_BITS);
     extra_bi_frame_vptr = bi_frame_vptr + BIT(BI_FRAME_SIZE_BITS);
 
-    /*CY 将内核代码映射到实际的物理区域 */
+    /* cy
+    将内核代码映射到实际的物理区域 */
     map_kernel_window();
 
     /* initialise the CPU */
@@ -469,11 +470,8 @@ static BOOT_CODE bool_t try_init_kernel(
    *    a3/x13: user image virtual entry address
    *    a4/x14: DTB physical address (0 if there is none)
    *    a5/x15: DTB size (0 if there is none)
-   * 
-   *    ifdef SMP
    *    a6/x16: hart ID (SMP only, unused on non-SMP)
    *    a7/x17: core ID (SMP only, unused on non-SMP)
-   *    endif 
    */
 BOOT_CODE VISIBLE void init_kernel(
     paddr_t ui_p_reg_start,
