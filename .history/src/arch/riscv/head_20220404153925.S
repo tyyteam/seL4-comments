@@ -21,14 +21,14 @@
  * and logical core ID in a7.
  */
 _start:
-  fence.i     //线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据store。
+  fence.i//线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据 线程中，该指令之后的取操作可以看得到这条前任何数据store。
 .option push
 .option norelax
 1:auipc gp, %pcrel_hi(__global_pointer$)
   addi  gp, gp, %pcrel_lo(1b)
-.option pop   //见https://sourceware.org/binutils/docs-2.38/as.html
-  la sp, (kernel_stack_alloc + BIT(CONFIG_KERNEL_STACK_BITS))//la加载地址，设置sp的值为后面的地址
-  csrw sscratch, x0 /* zero sscratch for the init task *///见rv特权指令卷2，x0的值被写入sscratch
+.option pop
+  la sp, (kernel_stack_alloc + BIT(CONFIG_KERNEL_STACK_BITS))
+  csrw sscratch, x0 /* zero sscratch for the init task */
 
 #if CONFIG_MAX_NUM_NODES > 1
 /* setup the per-core stack */
@@ -49,7 +49,7 @@ _start:
    *    a6/x16: hart ID (SMP only, unused on non-SMP)
    *    a7/x17: core ID (SMP only, unused on non-SMP)
    */
-  jal init_kernel//跳转到kernel/src/riscv/kernel/boot.c的init_kernel函数
+  jal init_kernel
 
   /* Restore the initial thread. Note that the function restore_user_context()
    * could technically also be called at the end of init_kernel() directly,
