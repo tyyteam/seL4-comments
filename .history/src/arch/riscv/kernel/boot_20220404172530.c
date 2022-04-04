@@ -462,19 +462,15 @@ static BOOT_CODE bool_t try_init_kernel(
     printf("Booting all finished, dropped to user space\n");
     return true;
 }
-  /*qtliu 这段注释复制自head.S 
-   *    Call bootstrapping implemented in C with parameters:
+  /* Call bootstrapping implemented in C with parameters:
    *    a0/x10: user image physical start address
    *    a1/x11: user image physical end address
    *    a2/x12: physical/virtual offset
    *    a3/x13: user image virtual entry address
    *    a4/x14: DTB physical address (0 if there is none)
    *    a5/x15: DTB size (0 if there is none)
-   * 
-   *    ifdef SMP
    *    a6/x16: hart ID (SMP only, unused on non-SMP)
    *    a7/x17: core ID (SMP only, unused on non-SMP)
-   *    endif 
    */
 BOOT_CODE VISIBLE void init_kernel(
     paddr_t ui_p_reg_start,
