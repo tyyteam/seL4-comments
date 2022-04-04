@@ -105,16 +105,18 @@ BOOT_CODE void map_kernel_frame(paddr_t paddr, pptr_t vaddr, vm_rights_t vm_righ
 
 BOOT_CODE VISIBLE void map_kernel_window(void)
 {
+    /*CY 页表相关的全局变量声明在 src/arch/riscv/model/statedata.c 中 */
+
     /* mapping of KERNEL_ELF_BASE (virtual address) to kernel's
      * KERNEL_ELF_PHYS_BASE  */
     assert(CONFIG_PT_LEVELS > 1 && CONFIG_PT_LEVELS <= 4);
 
-    /* cy 下面开始映射内核区的虚拟地址空间 */
+    /*CY 下面开始映射内核区的虚拟地址空间 */
 
     /* kernel window starts at PPTR_BASE */
     word_t pptr = PPTR_BASE;
 
-    /* cy 映射Physical Memory Window这块的第一级页表 */
+    /*CY 映射Physical Memory Window这块的第一级页表 */
 
     /* first we map in memory from PADDR_BASE */
     word_t paddr = PADDR_BASE;
@@ -122,17 +124,19 @@ BOOT_CODE VISIBLE void map_kernel_window(void)
         assert(IS_ALIGNED(pptr, RISCV_GET_LVL_PGSIZE_BITS(0)));
         assert(IS_ALIGNED(paddr, RISCV_GET_LVL_PGSIZE_BITS(0)));
 
-        /* cy 内核根页表，映射一个一级地址，pte_next生成一个pte(页表项)，每个页表项下空间为2^30bit*/
+        /*CY 内核根页表，映射一个一级地址，pte_next生成一个pte(页表项)，每个页表项下空间为2^30bit*/
         kernel_root_pageTable[RISCV_GET_PT_INDEX(pptr, 0)] = pte_next(paddr, true);
 
         pptr += RISCV_GET_LVL_PGSIZE(0);
         paddr += RISCV_GET_LVL_PGSIZE(0);
     }
 
-    /* cy 映射内核代码所在的1GB空间 */
+    /*CY 下面开始映射内核代码所在的1GB空间 */
     
     /* now we should be mapping the 1GiB kernel base */
     assert(pptr == PPTR_TOP);
+    /*CY ROUND_DOWN第二个参数x为末x位置0，这里RISCV_GET_LVL_PGSIZE_BITS(0)也就是获得顶级页表（0级）下
+    页的大小的位数（这里是30位，也就是1GB），使得地址向下1G边界对齐，也就是末30位置0 */
     pptr = ROUND_DOWN(KERNEL_ELF_BASE, RISCV_GET_LVL_PGSIZE_BITS(0));
     paddr = ROUND_DOWN(KERNEL_ELF_PADDR_BASE, RISCV_GET_LVL_PGSIZE_BITS(0));
 
@@ -149,10 +153,14 @@ BOOT_CODE VISIBLE void map_kernel_window(void)
     /* The kernel image is mapped twice, locating the two indexes in the
      * root page table, pointing them to the same second level page table.
      */
+    /*CY KERNEL_ELF_PADDR_BASE + PPTR_BASE_OFFSET对应的虚拟地址其实在上面映射Physical Memory Window时
+    已经被映射过了，当时映射的是一个1GB的吉页，现在重新映射把它指向了一个二级页表 */
     kernel_root_pageTable[RISCV_GET_PT_INDEX(KERNEL_ELF_PADDR_BASE + PPTR_BASE_OFFSET, 0)] =
         pte_next(kpptr_to_paddr(kernel_image_level2_pt), false);
+    /*CY 映射虚拟空间Kernel ELF那一段*/
     kernel_root_pageTable[RISCV_GET_PT_INDEX(pptr, 0)] =
         pte_next(kpptr_to_paddr(kernel_image_level2_pt), false);
+    /*CY 二级页表的映射*/
     while (pptr < PPTR_TOP + RISCV_GET_LVL_PGSIZE(0)) {
         kernel_image_level2_pt[index] = pte_next(paddr, true);
         index++;
@@ -160,13 +168,17 @@ BOOT_CODE VISIBLE void map_kernel_window(void)
         paddr += RISCV_GET_LVL_PGSIZE(1);
     }
 
+    /*CY Kernel Devices区域也包含一个二级页表kernel_image_level2_dev_pt */
     /* Map kernel device page table */
     kernel_root_pageTable[RISCV_GET_PT_INDEX(KDEV_BASE, 0)] =
         pte_next(kpptr_to_paddr(kernel_image_level2_dev_pt), false);
 #endif
 
+    /*CY 检查是否还有足够1GiB大小的空间来用于Kernel Devices的映射*/
     /* There should be 1GiB free where we put device mapping */
     assert(pptr == UINTPTR_MAX - RISCV_GET_LVL_PGSIZE(0) + 1);
+
+    /*CY 映射Kernel Devices*/
     map_kernel_devices();
 }
 
