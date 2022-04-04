@@ -203,6 +203,7 @@ static inline word_t read_sie(void)
     return temp;
 }
 
+/*CY csrrs rd,csr,rs1 用于读取csr的值为t，将t与寄存器rs1的值按位或的结果写入csr，再把t写入rd */
 static inline void set_sie_mask(word_t mask_high)
 {
     word_t temp;
@@ -240,16 +241,17 @@ static inline void write_fcsr(uint32_t value)
 #endif
 static inline void setVSpaceRoot(paddr_t addr, asid_t asid)
 {
-    satp_t satp = satp_new(SATP_MODE,              /* mode */
+    satp_t satp = satp_new(SATP_MODE,              /* mode */ /*CY SATP_MODE定义见上方 */
                            asid,                   /* asid */
                            addr >> seL4_PageBits); /* PPN */
-
+    /*CY satp是页表基地址寄存器，它以前叫做sptbr */
     write_satp(satp.words[0]);
 
     /* Order read/write operations */
 #ifdef ENABLE_SMP_SUPPORT
     sfence_local();
 #else
+    /*CY 用来刷新TLB */
     sfence();
 #endif
 }

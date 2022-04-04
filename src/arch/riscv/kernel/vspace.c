@@ -322,6 +322,7 @@ BOOT_CODE cap_t create_it_address_space(cap_t root_cnode_cap, v_region_t it_v_re
 
 BOOT_CODE void activate_kernel_vspace(void)
 {
+    /*CY 设置内核虚拟空间顶级页表的地址 */
     setVSpaceRoot(kpptr_to_paddr(&kernel_root_pageTable), 0);
 }
 
