@@ -95,7 +95,7 @@
 #define KERNEL_ELF_PADDR_BASE (physBase + UL_CONST(0x4000000))//riscv build中 #define physBase 0x80000000，KERNEL_ELF_PADDR_BASE=0x8400_0000
 
 /* The base address in virtual memory to use for the kernel ELF mapping */
-#define KERNEL_ELF_BASE (PPTR_TOP + (KERNEL_ELF_PADDR_BASE & MASK(30)))//riscv build中，KERNEL_ELF_PADDR_BASE & MASK(30)=0x0400_0000,KERNEL_ELF_BASE=0xFFFFFFFF8400_0000
+#define KERNEL_ELF_BASE (PPTR_TOP + (KERNEL_ELF_PADDR_BASE & MASK(30)))//riscv build中，
 
 /* The base address in virtual memory to use for the kernel device
  * mapping region. These are mapped in the kernel page table. */

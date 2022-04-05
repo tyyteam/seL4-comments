@@ -203,6 +203,11 @@ static BOOT_CODE bool_t try_init_kernel(
     KERNEL_ELF_BASE(0xffffffff80100000) = PPTR_TOP（0xffffffff80000000）+ KERNEL_ELF_PADDR_BASE（0x00100000）,
     KERNEL_ELF_BASE_OFFSET也就是PPTR_TOP
     */
+    /**qtliu rv
+     * KERNEL_ELF_BASE_OFFSET(0xFFFFFFFF0000_0000)=KERNEL_ELF_BASE(0xFFFFFFFF8400_0000)-KERNEL_ELF_PADDR_BASE(0x8400_0000)
+     * kpptr_to_paddr((void *)KERNEL_ELF_BASE)=KERNEL_ELF_BASE(0xFFFFFFFF8400_0000) - KERNEL_ELF_BASE_OFFSET(0xFFFFFFFF0000_0000)=0x8400_0000
+     * kpptr_to_paddr(ki_boot_end)=ki_boot_end(lds文件中的内核镜像结束位置)-KERNEL_ELF_BASE_OFFSET(0xFFFFFFFF0000_0000)=?
+     * */
     p_region_t boot_mem_reuse_p_reg = ((p_region_t) {
         kpptr_to_paddr((void *)KERNEL_ELF_BASE), kpptr_to_paddr(ki_boot_end)
     });
