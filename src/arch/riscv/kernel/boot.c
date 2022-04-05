@@ -24,6 +24,7 @@
 BOOT_BSS static volatile word_t node_boot_lock;
 #endif
 
+/*CY 保留区域，rv就是3块：kernel， dtb， user image */
 BOOT_BSS static region_t res_reg[NUM_RESERVED_REGIONS];
 
 BOOT_CODE cap_t create_mapped_it_frame_cap(cap_t pd_cap, pptr_t pptr, vptr_t vptr, asid_t asid, bool_t
@@ -51,6 +52,7 @@ BOOT_CODE cap_t create_mapped_it_frame_cap(cap_t pd_cap, pptr_t pptr, vptr_t vpt
     return cap;
 }
 
+/*CY 初始化可用的物理内存区域 */
 BOOT_CODE static bool_t arch_init_freemem(region_t ui_reg,
                                           p_region_t dtb_p_reg,
                                           v_region_t it_v_reg,
@@ -60,7 +62,8 @@ BOOT_CODE static bool_t arch_init_freemem(region_t ui_reg,
      * symbols are a reference in the kernel image window, but all allocations
      * are done in terms of the main kernel window, so we do some translation.
      */
-    res_reg[0].start = (pptr_t)paddr_to_pptr(kpptr_to_paddr((void *)KERNEL_ELF_BASE));
+    /*CY 保留区域第一块是kernel */
+    res_reg[0].start = (pptr_t)paddr_to_pptr(kpptr_to_paddr((void *)KERNEL_ELF_BASE)); /*CY 将Kernel ELF那段的虚拟地址转换为PSpace那段所对应的Kernel ELF的虚拟地址，下同。意思就是要访问物理内存一律通过PSpace */
     res_reg[0].end = (pptr_t)paddr_to_pptr(kpptr_to_paddr((void *)ki_end));
 
     int index = 1;
@@ -84,8 +87,9 @@ BOOT_CODE static bool_t arch_init_freemem(region_t ui_reg,
     index += 1;
 
     /* avail_p_regs comes from the auto-generated code */
+    /*CY 去掉保留区域用掉的物理内存，剩余可用的物理内存 */
     return init_freemem(ARRAY_SIZE(avail_p_regs), avail_p_regs,
-                        index, res_reg,
+                        index, res_reg, /*CY 这里index也就是保留区域的个数 */
                         it_v_reg, extra_bi_size_bits);
 }
 
@@ -194,8 +198,7 @@ static BOOT_CODE bool_t try_init_kernel(
     cap_t it_pd_cap;
     cap_t it_ap_cap;
     cap_t ipcbuf_cap; 
-    /*CY
-    内核启动代码的物理位置 
+    /*CY 内核启动代码的物理位置 x86_64
 
     kpptr_to_paddr是将内核代码对应的虚拟地址转化为实际物理地址，
     这里是 KERNEL_ELF_BASE - KERNEL_ELF_BASE_OFFSET，
@@ -235,8 +238,11 @@ static BOOT_CODE bool_t try_init_kernel(
         .end   = ui_p_reg_end   - pv_offset
     };
 
+    /*CY ipcbuffer跟在user image后面 */
     ipcbuf_vptr = ui_v_reg.end;
+    /* bootinfo跟在ipcbuffer后面，ipcbuffer占一个页 */
     bi_frame_vptr = ipcbuf_vptr + BIT(PAGE_BITS);
+    /* bootinfo的extra部分跟在bootinfo后面，bootinfo占一个页 */
     extra_bi_frame_vptr = bi_frame_vptr + BIT(BI_FRAME_SIZE_BITS);
 
     /*CY 将内核代码映射到实际的物理区域 */
@@ -282,11 +288,13 @@ static BOOT_CODE bool_t try_init_kernel(
     }
 
     /* The region of the initial thread is the user image + ipcbuf + boot info + extra */
-    word_t extra_bi_size_bits = calculate_extra_bi_size_bits(extra_bi_size);
+    word_t extra_bi_size_bits = calculate_extra_bi_size_bits(extra_bi_size);  /*CY extra_bi_size来自于DTB，不然这个值就是0，这里暂时先不管 */
+    /*CY initial thread的虚拟空间 */
     v_region_t it_v_reg = {
         .start = ui_v_reg.start,
         .end   = extra_bi_frame_vptr + BIT(extra_bi_size_bits)
     };
+    /*CY 检查一下initial thread是否超出用户虚拟空间 */
     if (it_v_reg.end >= USER_TOP) {
         /* Variable arguments for printf() require well defined integer types
          * to work properly. Unfortunately, the definition of USER_TOP differs
@@ -299,6 +307,7 @@ static BOOT_CODE bool_t try_init_kernel(
     }
 
     /* make the free memory available to alloc_region() */
+    /*CY 初始化可用的物理内存区域 */
     if (!arch_init_freemem(ui_reg, dtb_p_reg, it_v_reg, extra_bi_size_bits)) {
         printf("ERROR: free memory management initialization failed\n");
         return false;

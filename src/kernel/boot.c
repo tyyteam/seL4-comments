@@ -720,12 +720,15 @@ BOOT_CODE static inline pptr_t ceiling_kernel_window(pptr_t p)
     /* Adjust address if it exceeds the kernel window
      * Note that we compare physical address in case of overflow.
      */
+    /*CY 如果虚拟地址超出PSpace（kernel window），把它置为PPTR_TOP，意思就是不能用了？ */
+    /*CY 用虚拟地址作比较可能会溢出，所以这里转化为物理地址再比较 */
     if (pptr_to_paddr((void *)p) > PADDR_TOP) {
         p = PPTR_TOP;
     }
     return p;
 }
 
+/*CY 打印可用内存区域信息并验证合法性 */
 BOOT_CODE static bool_t check_available_memory(word_t n_available,
                                                const p_region_t *available)
 {
@@ -735,24 +738,28 @@ BOOT_CODE static bool_t check_available_memory(word_t n_available,
         return false;
     }
 
+    /*CY 这里就会在内核启动信息中打印可用内存区域个数，spike打印出来是[80200000..17ff00000] */
     printf("available phys memory regions: %"SEL4_PRIu_word"\n", n_available);
     /* Force ordering and exclusivity of available regions. */
     for (word_t i = 0; i < n_available; i++) {
         const p_region_t *r = &available[i];
         printf("  [%"SEL4_PRIx_word"..%"SEL4_PRIx_word"]\n", r->start, r->end);
 
+        /*CY 可用内存区域不能start > end */
         /* Available regions must be sane */
         if (r->start > r->end) {
             printf("ERROR: memory region %"SEL4_PRIu_word" has start > end\n", i);
             return false;
         }
 
+        /*CY 不能为空 */
         /* Available regions can't be empty. */
         if (r->start == r->end) {
             printf("ERROR: memory region %"SEL4_PRIu_word" empty\n", i);
             return false;
         }
 
+        /*CY 必须有序且不能重叠 */
         /* Regions must be ordered and must not overlap. */
         if ((i > 0) && (r->start < available[i - 1].end)) {
             printf("ERROR: memory region %d in wrong order\n", (int)i);
@@ -763,10 +770,13 @@ BOOT_CODE static bool_t check_available_memory(word_t n_available,
     return true;
 }
 
-
+/*CY 打印保留区域（虚拟空间）信息并验证合法性 */
 BOOT_CODE static bool_t check_reserved_memory(word_t n_reserved,
                                               const region_t *reserved)
 {
+    /*CY 这里就会在内核启动信息中打印保留区域（虚拟空间）个数，spike打印出来是[ffffffc084000000..ffffffc084021000]
+                                                                   [ffffffc084021000..ffffffc0840213a1] 
+                                                                   [ffffffc084022000..ffffffc084408000] */
     printf("reserved virt address space regions: %"SEL4_PRIu_word"\n",
            n_reserved);
     /* Force ordering and exclusivity of reserved regions. */
@@ -774,12 +784,14 @@ BOOT_CODE static bool_t check_reserved_memory(word_t n_reserved,
         const region_t *r = &reserved[i];
         printf("  [%"SEL4_PRIx_word"..%"SEL4_PRIx_word"]\n", r->start, r->end);
 
+        /*CY 保留内存区域必须start > end */ 
         /* Reserved regions must be sane, the size is allowed to be zero. */
         if (r->start > r->end) {
             printf("ERROR: reserved region %"SEL4_PRIu_word" has start > end\n", i);
             return false;
         }
 
+        /*CY 必须有序且不能重叠 */
         /* Regions must be ordered and must not overlap. */
         if ((i > 0) && (r->start < reserved[i - 1].end)) {
             printf("ERROR: reserved region %"SEL4_PRIu_word" in wrong order\n", i);
@@ -797,33 +809,47 @@ BOOT_BSS static region_t avail_reg[MAX_NUM_FREEMEM_REG];
  * Dynamically initialise the available memory on the platform.
  * A region represents an area of memory.
  */
-BOOT_CODE bool_t init_freemem(word_t n_available, const p_region_t *available,
-                              word_t n_reserved, const region_t *reserved,
-                              v_region_t it_v_reg, word_t extra_bi_size_bits)
+/*CY 初始化空闲可用的物理内存 */
+BOOT_CODE bool_t init_freemem(word_t n_available, const p_region_t *available, /*CY 可用内存区域个数， 可用内存区域数组 */
+                              word_t n_reserved, const region_t *reserved,     /*CY 保留区域个数，保留区域数组*/
+                              v_region_t it_v_reg, word_t extra_bi_size_bits)  /*CY initial thread虚拟空间范围， bootinfo额外大小 */
 {
-
+    /*CY 打印可用内存区域信息并验证合法性 */
     if (!check_available_memory(n_available, available)) {
         return false;
     }
-
+    /*CY 打印保留区域信息并验证合法性 */
     if (!check_reserved_memory(n_reserved, reserved)) {
         return false;
     }
 
+    /*CY ndks_boot类型为ndks_boot_t（(node-local) state accessed only during bootstrapping），定义在include/kernel/boot.h
+        里面存了保留区域，可用内存区域，bootinfo等内容
+        typedef struct ndks_boot {
+            p_region_t reserved[MAX_NUM_RESV_REG];
+            word_t resv_count;
+            region_t   freemem[MAX_NUM_FREEMEM_REG];
+            seL4_BootInfo      *bi_frame;
+            seL4_SlotPos slot_pos_cur;
+        } ndks_boot_t;
+    */
+    /*CY 将freemen里的区域都置空 */
     for (word_t i = 0; i < ARRAY_SIZE(ndks_boot.freemem); i++) {
         ndks_boot.freemem[i] = REG_EMPTY;
     }
 
     /* convert the available regions to pptrs */
+    /*CY 原来avail_reg里存的可用内存区域地址是物理地址，这里转化为虚拟地址 */
     for (word_t i = 0; i < n_available; i++) {
         avail_reg[i] = paddr_to_pptr_reg(available[i]);
-        avail_reg[i].end = ceiling_kernel_window(avail_reg[i].end);
+        avail_reg[i].end = ceiling_kernel_window(avail_reg[i].end);  /*CY 如果虚拟地址超出了PSpace，那需要做转化，下同 */
         avail_reg[i].start = ceiling_kernel_window(avail_reg[i].start);
     }
 
     word_t a = 0;
     word_t r = 0;
     /* Now iterate through the available regions, removing any reserved regions. */
+    /*CY 在可用内存区域中去掉保留区域占用的物理内存，注意：保留区域是虚拟空间的 */
     while (a < n_available && r < n_reserved) {
         if (reserved[r].start == reserved[r].end) {
             /* reserved region is empty - skip it */
