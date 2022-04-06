@@ -121,8 +121,8 @@ BOOT_CODE VISIBLE void map_kernel_window(void)
     /* first we map in memory from PADDR_BASE */
     word_t paddr = PADDR_BASE;
     while (pptr < PPTR_TOP) {
-        assert(IS_ALIGNED(pptr, RISCV_GET_LVL_PGSIZE_BITS(0)));
-        assert(IS_ALIGNED(paddr, RISCV_GET_LVL_PGSIZE_BITS(0)));
+        assert(IS_ALIGNED(pptr, RISCV_GET_LVL_PGSIZE_BITS(0)));//检查pptr%RISCV_GET_LVL_PGSIZE_BITS(0)==0?
+        assert(IS_ALIGNED(paddr, RISCV_GET_LVL_PGSIZE_BITS(0)));//宏定义位于kernel/include/arch/riscv/arch/machine/hardware.h
 
         /*CY 内核根页表，映射一个一级地址，pte_next生成一个pte(页表项)，每个页表项下空间为2^30bit*/
         kernel_root_pageTable[RISCV_GET_PT_INDEX(pptr, 0)] = pte_next(paddr, true);
