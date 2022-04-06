@@ -784,7 +784,7 @@ BOOT_CODE static bool_t check_reserved_memory(word_t n_reserved,
         const region_t *r = &reserved[i];
         printf("  [%"SEL4_PRIx_word"..%"SEL4_PRIx_word"]\n", r->start, r->end);
 
-        /*CY 保留内存区域必须start > end */ 
+        /*CY 保留内存区域不能start > end */ 
         /* Reserved regions must be sane, the size is allowed to be zero. */
         if (r->start > r->end) {
             printf("ERROR: reserved region %"SEL4_PRIu_word" has start > end\n", i);
@@ -852,16 +852,20 @@ BOOT_CODE bool_t init_freemem(word_t n_available, const p_region_t *available, /
     /*CY 在可用内存区域中去掉保留区域占用的物理内存，注意：保留区域是虚拟空间的 */
     while (a < n_available && r < n_reserved) {
         if (reserved[r].start == reserved[r].end) {
+            /*CY 排除保留区域为空的情况 */
             /* reserved region is empty - skip it */
             r++;
         } else if (avail_reg[a].start >= avail_reg[a].end) {
+            /*CY 排除可用内存区域为空的情况 */
             /* skip the entire region - it's empty now after trimming */
             a++;
         } else if (reserved[r].end <= avail_reg[a].start) {
+            /*CY 如果当前遍历到的保留区域在当前可用内存区域前面，那么跳过这个保留区域 */
             /* the reserved region is below the available region - skip it */
             reserve_region(pptr_to_paddr_reg(reserved[r]));
             r++;
         } else if (reserved[r].start >= avail_reg[a].end) {
+            /*CY 如果当前遍历到的保留区域在当前可用内存区域后面，那么跳过这个可用内存区域 */
             /* the reserved region is above the available region - take the whole thing */
             insert_region(avail_reg[a]);
             a++;
