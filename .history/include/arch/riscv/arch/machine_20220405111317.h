@@ -151,7 +151,6 @@ static inline void write_satp(word_t value)
     asm volatile("csrw satp, %0" :: "rK"(value));
 }
 
-/*QT csrw csr,rs1，被编码为csrrw x0,csr,rs1, 把rs1寄存器的值写入csr*/
 static inline void write_stvec(word_t value)
 {
     asm volatile("csrw stvec, %0" :: "rK"(value));

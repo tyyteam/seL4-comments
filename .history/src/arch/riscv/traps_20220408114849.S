@@ -10,8 +10,8 @@
 #include <arch/machine/hardware.h>/*QTkernel/include/arch/riscv/arch/machine/hardware.h 内存管理（MMU）RISCV平台相关的一些宏定义和操作*/
 #include <arch/api/syscall.h>/*QT build下生成*/
 #include <arch/machine/registerset.h>/*QT /kernel/include/arch/riscv/arch/machine/registerset.h 寄存器宏定义，消息相关宏定义，fpu等*/
-#include <util.h>/*QT kernel/include/util.h 目前用到的是一些位运算操作的宏定义，属性函数等相关宏定义*/
-/*QT CONFIG_WORD_SIZE在build目录下指定为64，即字的大小64位，8Bytes*/
+#include <util.h>/*QT kernel/include/util.h*/
+
 #define REGBYTES (CONFIG_WORD_SIZE / 8)
 
 .section .text

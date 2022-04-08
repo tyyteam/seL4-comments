@@ -7,7 +7,7 @@
 #pragma once
 
 /* This file contains useful macros for assembly code. */
-/*QT 段相关的汇编宏*/
+
 #ifdef __ASSEMBLER__
 
 /*

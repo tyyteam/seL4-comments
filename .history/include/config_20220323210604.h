@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <sel4/config.h>/*该文件自动生成相关*/
+#include <sel4/config.h>
 
 /* Set ENABLE_SMP_SUPPORT for kernel source files */
 #ifdef CONFIG_ENABLE_SMP_SUPPORT

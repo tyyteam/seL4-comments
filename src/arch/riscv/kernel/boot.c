@@ -131,7 +131,7 @@ BOOT_CODE static void init_cpu(void)
 {
     /*CY 激活内核虚拟空间，实际上就是设置页表寄存器*/
     activate_kernel_vspace();
-    /* Write trap entry address to stvec */
+    /* Write trap entry address to stvec *//*QT 把内陷函数入口地址写入stvec寄存器*/
     /*CY stvec寄存器中存放的是内陷处理函数入口地址 */
     write_stvec((word_t)trap_entry);
     /*CY 初始化中断请求控制器 */
