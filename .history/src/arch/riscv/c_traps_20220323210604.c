@@ -216,5 +216,5 @@ void VISIBLE NORETURN c_handle_syscall(word_t cptr, word_t msgInfo, syscall_t sy
 #endif /* DEBUG */
     slowpath(syscall);
 
-    UNREACHABLE();/*void noreturn 函数结尾放这个函数，参考https://gcc.gnu.org/onlinedocs/gcc-11.2.0/gcc/Other-Builtins.html#Other-Builtins*/
+    UNREACHABLE();
 }

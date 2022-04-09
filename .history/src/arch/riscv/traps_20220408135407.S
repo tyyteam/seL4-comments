@@ -22,7 +22,7 @@
 .extern c_handle_fastpath_call
 .extern c_handle_interrupt
 .extern c_handle_exception
-/*QT 这些extern函数均来自 include/arch/riscv/arch/kernel/traps.h src/arch/riscv/c_traps.c*/
+
 trap_entry:
 
 #ifdef ENABLE_SMP_SUPPORT
