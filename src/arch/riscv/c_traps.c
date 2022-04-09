@@ -214,7 +214,7 @@ void VISIBLE NORETURN c_handle_syscall(word_t cptr, word_t msgInfo, syscall_t sy
     benchmark_debug_syscall_start(cptr, msgInfo, syscall);
     ksKernelEntry.is_fastpath = 0;
 #endif /* DEBUG */
-    slowpath(syscall);
+    slowpath(syscall);/*QT 根据调用号处理*/
 
     UNREACHABLE();/*void noreturn 函数结尾放这个函数，参考https://gcc.gnu.org/onlinedocs/gcc-11.2.0/gcc/Other-Builtins.html#Other-Builtins*/
 }

@@ -138,5 +138,5 @@ exception:
 
 interrupt:
   /* Save NextIP */
-  STORE   x1, (34*REGBYTES)(t0)/*QT 根据上文sepc，保存中断指令的返回地址(=中断返回地址)。*/
+  STORE   x1, (34*REGBYTES)(t0)/*QT 根据上文sepc，保存中断指令的返回地址。*/
   j c_handle_interrupt

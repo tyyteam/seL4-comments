@@ -133,10 +133,10 @@ handle_syscall:/*QT 如果是用户态调用ecall的异常*/
 /* Not an interrupt or a syscall */
 exception:
   /* Save NextIP */
-  STORE   x1, (34*REGBYTES)(t0)/*QT 根据上文sepc，保存异常指令的返回地址(=异常指令地址)。*/
+  STORE   x1, (34*REGBYTES)(t0)/*保存异常指令的地址，作为返回地址*/
   j c_handle_exception
 
 interrupt:
   /* Save NextIP */
-  STORE   x1, (34*REGBYTES)(t0)/*QT 根据上文sepc，保存中断指令的返回地址(=中断返回地址)。*/
+  STORE   x1, (34*REGBYTES)(t0)/*根据上文sepc，保存中断指令的返回地址*/
   j c_handle_interrupt

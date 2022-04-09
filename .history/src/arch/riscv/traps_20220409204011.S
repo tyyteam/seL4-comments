@@ -94,7 +94,7 @@ trap_entry:
 #endif
 
   /* Save exception PC */
-  csrr x1,  sepc/*QT sepc：对于中断，它指向中断处理后应该返回的位置；对于异常，它指向导致异常的指令*/
+  csrr x1,  sepc/*QT sepc，指向发生异常的指令*/
   STORE   x1, (33*REGBYTES)(t0)
 
   /* Check if it's an interrupt */
@@ -107,7 +107,7 @@ trap_entry:
   li   s4, 8/*QT 立即数8加载到s4*/
   bne  s0, s4, exception/*QT s0不等于s4，跳转到exception。如果不是用户态主动切换到s态，跳转到exception*/
 
-handle_syscall:/*QT 如果是用户态调用ecall的异常*/
+handle_syscall:/*QT 如果是用户态调用ecall*/
   /* Set the return address to sepc + 4 in the case of a system/environment call */
   addi x1, x1, 4/*QT [x1]=[x1]+4。x1即ra，返回地址寄存器。*/
   /* Save NextIP */
@@ -128,15 +128,15 @@ handle_syscall:/*QT 如果是用户态调用ecall的异常*/
   /* move syscall number to 3rd argument */
   mv a2, a7/*QT a7是异常类型号*/
 
-  j c_handle_syscall/*QT 处理系统调用，三个参数：a0=word_t cptr, a1=word_t msgInfo, a2=syscall_t syscall(系统调用号),a0也是返回值*/
+  j c_handle_syscall/*QT 处理系统调用*/
 
 /* Not an interrupt or a syscall */
 exception:
   /* Save NextIP */
-  STORE   x1, (34*REGBYTES)(t0)/*QT 根据上文sepc，保存异常指令的返回地址(=异常指令地址)。*/
+  STORE   x1, (34*REGBYTES)(t0)
   j c_handle_exception
 
 interrupt:
   /* Save NextIP */
-  STORE   x1, (34*REGBYTES)(t0)/*QT 根据上文sepc，保存中断指令的返回地址(=中断返回地址)。*/
+  STORE   x1, (34*REGBYTES)(t0)
   j c_handle_interrupt
