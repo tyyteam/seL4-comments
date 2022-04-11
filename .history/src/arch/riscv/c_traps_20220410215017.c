@@ -207,7 +207,7 @@ void VISIBLE c_handle_fastpath_call(word_t cptr, word_t msgInfo)
 
 void VISIBLE NORETURN c_handle_syscall(word_t cptr, word_t msgInfo, syscall_t syscall)
 {
-    NODE_LOCK_SYS;/*QT 不开smp，无意义*/
+    NODE_LOCK_SYS;/*QT ？？？*/
 
     c_entry_hook();
 #ifdef TRACK_KERNEL_ENTRIES

@@ -241,11 +241,13 @@ BOOT_CODE void initLocalIRQController(void)
     printf("Init local IRQ\n");
 
     /* Init per-hart PLIC */
+    /*QT 从调试信息来看，只是在include/drivers/irq/riscv_plic_dummy.h里打印一句话。整个文件是dummy处理，因为spike没有实现。*/
     plic_init_hart();
 
     /* Enable timer and external interrupt. If SMP is enabled, then enable the
      * software interrupt also, it is used as IPI between cores. */
     /*CY sie是当前的中断使能位 */
+    /*QT 使能中断位，中断号见手册图10.3：s模式外部中断、s模式时间中断。未开smp,s模式software中断==0*/
     set_sie_mask(BIT(SIE_SEIE) | BIT(SIE_STIE) | SMP_TERNARY(BIT(SIE_SSIE), 0));
 }
 
@@ -258,11 +260,14 @@ BOOT_CODE void initIRQController(void)
      * the case) and the array is in the BSS, that is filled with zeros (which
      * the a kernel loader is supposed to do and which the ELF-Loader does).
      */
+    /*QT 正确初始化active_irq[],遵守语义，确保安全。
+         
+    */
     for (word_t i = 0; i < ARRAY_SIZE(active_irq); i++) {
         active_irq[i] = irqInvalid;
     }
 
-    plic_init_controller();
+    plic_init_controller();/*QT include/drivers/irq/riscv_plic_dummy.h 无plic*/
 }
 
 static inline void handleSpuriousIRQ(void)

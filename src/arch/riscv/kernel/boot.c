@@ -324,6 +324,7 @@ static BOOT_CODE bool_t try_init_kernel(
     create_domain_cap(root_cnode_cap);
 
     /* initialise the IRQ states and provide the IRQ control cap */
+    /*QT 可能与中断有关*/
     init_irqs(root_cnode_cap);
 
     /* create the bootinfo frame */
