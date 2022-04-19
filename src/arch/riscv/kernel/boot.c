@@ -136,6 +136,7 @@ BOOT_CODE static void init_cpu(void)
     write_stvec((word_t)trap_entry);
     /*CY 初始化中断请求控制器 */
     initLocalIRQController();
+    /*QT 中断分为本地中断和全局中断。在本地中断里设置软中断和定时器中断，全局中断也可以理解为外设中断*/
 #ifndef CONFIG_KERNEL_MCS
     initTimer();
 #endif

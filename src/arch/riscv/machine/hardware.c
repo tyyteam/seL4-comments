@@ -62,6 +62,12 @@ BOOT_CODE void map_kernel_devices(void)
  * are for user level, and also call plic_complete_claim for seL4_IRQHandler_Ack.
  */
 
+/* QT 在其他架构上，内核在将中断传递到用户级和接收确认调用之间屏蔽中断。
+    此策略不适用于 RISC-V，因为 IRQ 在声明时被隐式屏蔽，直到声明被确认。
+    如果我们在声明时屏蔽和取消屏蔽 PLIC 的中断，我们有时会遇到 IRQ 源未按预期屏蔽和取消屏蔽。
+    因此，我们不会屏蔽和取消屏蔽用户级别的 IRQ，并且还会为 seL4_IRQHandler_Ack 调用 plic_complete_claim。
+*/
+
 static irq_t active_irq[CONFIG_MAX_NUM_NODES];
 
 
@@ -81,6 +87,13 @@ static irq_t active_irq[CONFIG_MAX_NUM_NODES];
  *
  * @return     The active irq or irqInvalid.
  */
+/*QT 该函数被内核调用，用于获取现在活跃的中断。如果没有活跃的中断，它会尝试找到一个中断，并设置为活跃状态。
+如果没有找到中断，返回irqInvalid。如果isIRQPending()返回true，调用该函数时，不一定存在活跃irq。
+这可能在多种情况下都成立，但是在电平触发中断或多核系统上存在一些极端情况。
+在一个内核入口期间可以多次调用此函数。 它必须保证一旦一个中断被报告为活动的，
+这个中断总是被返回，直到最终调用 ackInterrupt()。
+*/
+
 static inline irq_t getActiveIRQ(void)
 {
     irq_t *active_irq_slot = &active_irq[CURRENT_CPU_INDEX()];
@@ -247,7 +260,7 @@ BOOT_CODE void initLocalIRQController(void)
     /* Enable timer and external interrupt. If SMP is enabled, then enable the
      * software interrupt also, it is used as IPI between cores. */
     /*CY sie是当前的中断使能位 */
-    /*QT 使能中断位，中断号见手册图10.3：s模式外部中断、s模式时间中断。未开smp,s模式software中断==0*/
+    /*QT 使能中断位，中断号见手册图10.3：s模式外部中断9、s模式时间中断5。未开smp,s模式software中断==0*/
     set_sie_mask(BIT(SIE_SEIE) | BIT(SIE_STIE) | SMP_TERNARY(BIT(SIE_SSIE), 0));
 }
 
@@ -261,7 +274,9 @@ BOOT_CODE void initIRQController(void)
      * the a kernel loader is supposed to do and which the ELF-Loader does).
      */
     /*QT 正确初始化active_irq[],遵守语义，确保安全。
-         
+         通常情况下，active_irq数组保存在bss段中，irqInvalid初值就是0，此处因此通常不需要这样初始化。
+         但是在kernel下只是255，在build下则是0，见build-spike/kernel/gen_headers/plat/platform_gen.h
+         此处应该是将活跃irq初始化为非法值。
     */
     for (word_t i = 0; i < ARRAY_SIZE(active_irq); i++) {
         active_irq[i] = irqInvalid;
