@@ -97,24 +97,19 @@ BOOT_CODE static void init_irqs(cap_t root_cnode_cap)
 {
     irq_t i;
 
-    for (i = 0; i <= maxIRQ; i++) {//QT 除了非法irq号，设置每个合法的irq状态=不活跃状态（包括时间中断），maxIRQ=1
+    for (i = 0; i <= maxIRQ; i++) {//QT 设置每个irq号的状态
         if (i != irqInvalid) {
             /* IRQ 0 is irqInvalid */
             setIRQState(IRQInactive, i);
         }
     }
-    setIRQState(IRQTimer, KERNEL_TIMER_IRQ);//QT 给中断号KERNEL_TIMER_IRQ分配IRQTimer状态，
+    setIRQState(IRQTimer, KERNEL_TIMER_IRQ);
 #ifdef ENABLE_SMP_SUPPORT
     setIRQState(IRQIPI, irq_remote_call_ipi);
     setIRQState(IRQIPI, irq_reschedule_ipi);
 #endif
     /* provide the IRQ control cap */
     write_slot(SLOT_PTR(pptr_of_cap(root_cnode_cap), seL4_CapIRQControl), cap_irq_control_cap_new());
-    /*QT pptr_of_cap(root_cnode_cap)获得root_cnode_cap的虚拟地址，
-        SLOT_PTR(pptr_of_cap(root_cnode_cap), seL4_CapIRQControl)，seL4_CapIRQControl是global IRQ controller cap宏定义为4，
-        --SLOT_PTR是基地值+偏移的形式，获得该root_cnode_cap的seL4_CapIRQControl的slot
-        cap_irq_control_cap_new应该是在build-spike/kernel/generated/arch/object/structures_gen.h下，内容与平台代码无关
-    */
 }
 
 /* ASM symbol for the CPU initialisation trap. */
@@ -141,7 +136,7 @@ BOOT_CODE static void init_cpu(void)
     write_stvec((word_t)trap_entry);
     /*CY 初始化中断请求控制器 */
     initLocalIRQController();
-    /*QT seL4的中断分为本地中断和全局中断。在本地中断里设置软中断和定时器中断，全局中断设置了plic平台级中断控制器*/
+    /*QT 中断分为本地中断和全局中断。在本地中断里设置软中断和定时器中断，全局中断也可以理解为外设中断*/
 #ifndef CONFIG_KERNEL_MCS
     initTimer();
 #endif
@@ -330,7 +325,7 @@ static BOOT_CODE bool_t try_init_kernel(
     create_domain_cap(root_cnode_cap);
 
     /* initialise the IRQ states and provide the IRQ control cap */
-    /*QT 设置各irq为不活跃状态，时间中断特殊设置，初始化root_cnode_cap的中断cap*/
+    /*QT 可能与中断有关*/
     init_irqs(root_cnode_cap);
 
     /* create the bootinfo frame */

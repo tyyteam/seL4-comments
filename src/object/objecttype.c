@@ -952,7 +952,7 @@ void *CONST cap_get_capPtr(cap_t cap)
         return NTFN_PTR(cap_notification_cap_get_capNtfnPtr(cap));
 
     case cap_cnode_cap:
-        return CTE_PTR(cap_cnode_cap_get_capCNodePtr(cap));
+        return CTE_PTR(cap_cnode_cap_get_capCNodePtr(cap));//QT init_irq中运行此处
 
     case cap_thread_cap:
         return TCB_PTR_CTE_PTR(cap_thread_cap_get_capTCBPtr(cap), 0);

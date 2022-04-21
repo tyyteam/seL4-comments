@@ -41,7 +41,7 @@ enum IRQConstants {
     INTERRUPT_IPI_0,
     INTERRUPT_IPI_1,
 #endif
-    KERNEL_TIMER_IRQ,//=1
+    KERNEL_TIMER_IRQ,
     maxIRQ = KERNEL_TIMER_IRQ,
 } platform_interrupt_t;
 
@@ -49,6 +49,6 @@ enum irqNumbers {
     irqInvalid = 0
 };
 
-#define IRQ_CNODE_SLOT_BITS (@CONFIGURE_IRQ_SLOT_BITS@)//见./config.cmake，应该不用改，看起来是自动计算的函数
+#define IRQ_CNODE_SLOT_BITS (@CONFIGURE_IRQ_SLOT_BITS@)//见./config.cmake，应该不用改
 
 #include <@CONFIGURE_INTERRUPT_CONTROLLER@> //drivers/irq/riscv_plic_dummy.h

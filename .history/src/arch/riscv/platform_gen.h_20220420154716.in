@@ -41,7 +41,7 @@ enum IRQConstants {
     INTERRUPT_IPI_0,
     INTERRUPT_IPI_1,
 #endif
-    KERNEL_TIMER_IRQ,//=1
+    KERNEL_TIMER_IRQ,
     maxIRQ = KERNEL_TIMER_IRQ,
 } platform_interrupt_t;
 

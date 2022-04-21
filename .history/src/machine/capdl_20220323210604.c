@@ -327,7 +327,7 @@ void obj_irq_print_maps(void)
     printf("irq maps {\n");
 
     for (seL4_Word target = 0; target < CONFIG_MAX_NUM_NODES; target++) {
-        for (unsigned i = 0; i <= ; i++) {
+        for (unsigned i = 0; i <= maxIRQ; i++) {
             irq_t irq = CORE_IRQ_TO_IRQT(target, i);
             if (isIRQActive(irq)) {
                 cap_t cap = intStateIRQNode[IRQT_TO_IDX(irq)].cap;
