@@ -155,12 +155,12 @@ static inline void plic_init_hart(void)
 
     word_t hart_id = plic_get_current_hart_id();
 
-    for (int i = 1; i <= PLIC_NUM_INTERRUPTS; i++) {// QT 屏蔽中断
+    for (int i = 1; i <= PLIC_NUM_INTERRUPTS; i++) {
         /* Disable interrupts */
         plic_mask_irq(true, i);
     }
 
-    /* Set threshold to zero */ //QT 先忽略优先级，设置为0
+    /* Set threshold to zero */
     writel(0, (PLIC_PPTR_BASE + plic_thres_offset(hart_id, PLIC_SVC_CONTEXT)));
 }
 
