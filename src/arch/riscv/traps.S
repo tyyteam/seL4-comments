@@ -27,12 +27,12 @@ trap_entry:
 
 #ifdef ENABLE_SMP_SUPPORT
 /* The sscratch contains the stack for the current core */
-  csrrw sp, sscratch, sp /*QT 交换sp和sscratch的值，sscratch通常是指针，指向内存可用区域。此操作将sp设置为指向内存可用区域的指针*/
+  csrrw sp, sscratch, sp /*QT 交换sp和sscratch的值，sscratch通常是指针，指向当前任务的上下文。此操作将sp设置为指向内存可用区域的指针*/
 /* Now we have a valid kernel stack */
   STORE t0, (-2*REGBYTES)(sp)/*QT t0寄存器中的值，保存到sp寄存器值加上立即数imm值相加结果的内存地址的 内存单元*/
   LOAD  t0, (-1*REGBYTES)(sp)/*QT 将sp寄存器值加上立即数imm值相加结果的内存地址的 内存单元 的值，存入t0寄存器中*/
 #else
-  csrrw t0, sscratch, t0/*QT 交换t0和sscratch的值，sscratch通常是指针，指向内存可用区域。此操作将t0设置为指向内存可用区域的指针*/
+  csrrw t0, sscratch, t0/*QT 交换t0和sscratch的值，sscratch通常是指针，指向当前任务的上下文。此操作将t0设置为指向内存可用区域的指针*/
 #endif
   STORE ra, (0*REGBYTES)(t0)/*QT 将各个寄存器存入t0指向的区域+偏移，ra是x1的别名，是返回地址寄存器*/
 #ifndef ENABLE_SMP_SUPPORT

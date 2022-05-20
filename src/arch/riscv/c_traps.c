@@ -39,7 +39,7 @@ void VISIBLE NORETURN restore_user_context(void)
 #endif
 
     asm volatile(
-        "mv t0, %[cur_thread]       \n"
+        "mv t0, %[cur_thread]       \n"//将上下文的起始地址放入t0
         LOAD_S " ra, (0*%[REGSIZE])(t0)  \n"
         LOAD_S "  sp, (1*%[REGSIZE])(t0)  \n"
         LOAD_S "  gp, (2*%[REGSIZE])(t0)  \n"
@@ -101,7 +101,7 @@ void VISIBLE NORETURN restore_user_context(void)
 
 void VISIBLE NORETURN c_handle_interrupt(void)
 {
-    NODE_LOCK_IRQ_IF(getActiveIRQ() != irq_remote_call_ipi);
+    NODE_LOCK_IRQ_IF(getActiveIRQ() != irq_remote_call_ipi);//smp未开启时此话无效
 
     c_entry_hook();
 

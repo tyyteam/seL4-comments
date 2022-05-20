@@ -39,7 +39,7 @@ void VISIBLE NORETURN restore_user_context(void)
 #endif
 
     asm volatile(
-        "mv t0, %[cur_thread]       \n"
+        "mv t0, %[cur_thread]       \n"//将上下文的起始地址放入t0
         LOAD_S " ra, (0*%[REGSIZE])(t0)  \n"
         LOAD_S "  sp, (1*%[REGSIZE])(t0)  \n"
         LOAD_S "  gp, (2*%[REGSIZE])(t0)  \n"
@@ -101,7 +101,7 @@ void VISIBLE NORETURN restore_user_context(void)
 
 void VISIBLE NORETURN c_handle_interrupt(void)
 {
-    NODE_LOCK_IRQ_IF(getActiveIRQ() != irq_remote_call_ipi);
+    NODE_LOCK_IRQ_IF(getActiveIRQ() != irq_remote_call_ipi);//smp未开启时此话无效
 
     c_entry_hook();
 
@@ -207,14 +207,14 @@ void VISIBLE c_handle_fastpath_call(word_t cptr, word_t msgInfo)
 
 void VISIBLE NORETURN c_handle_syscall(word_t cptr, word_t msgInfo, syscall_t syscall)
 {
-    NODE_LOCK_SYS;
+    NODE_LOCK_SYS;/*QT 不开smp，无意义*/
 
     c_entry_hook();
 #ifdef TRACK_KERNEL_ENTRIES
     benchmark_debug_syscall_start(cptr, msgInfo, syscall);
     ksKernelEntry.is_fastpath = 0;
 #endif /* DEBUG */
-    slowpath(syscall);
+    slowpath(syscall);/*QT 根据调用号处理*/
 
-    UNREACHABLE();
+    UNREACHABLE();/*void noreturn 函数结尾放这个函数，参考https://gcc.gnu.org/onlinedocs/gcc-11.2.0/gcc/Other-Builtins.html#Other-Builtins*/
 }
