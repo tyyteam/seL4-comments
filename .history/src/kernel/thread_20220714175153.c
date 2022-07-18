@@ -375,9 +375,9 @@ void schedule(void)
              * information flow in non-fastpath cases. */
             bool_t fastfail =//true
                 NODE_STATE(ksCurThread) == NODE_STATE(ksIdleThread)//true，空闲进程不看它的优先级
-                || (candidate->tcbPriority < NODE_STATE(ksCurThread)->tcbPriority);
+                || (candidate->tcbPriority < NODE_STATE(ksCurThread)->tcbPriority);//false
             if (fastfail &&
-                !isHighestPrio(ksCurDomain, candidate->tcbPriority)) {//根线程是最高的优先级
+                !isHighestPrio(ksCurDomain, candidate->tcbPriority)) {
                 SCHED_ENQUEUE(candidate);
                 /* we can't, need to reschedule */
                 NODE_STATE(ksSchedulerAction) = SchedulerAction_ChooseNewThread;
@@ -389,7 +389,7 @@ void schedule(void)
                 SCHED_APPEND(candidate);
                 NODE_STATE(ksSchedulerAction) = SchedulerAction_ChooseNewThread;
                 scheduleChooseNewThread();
-            } else {//riscv走else
+            } else {
                 assert(candidate != NODE_STATE(ksCurThread));
                 switchToThread(candidate);
             }

@@ -453,7 +453,7 @@ static BOOT_CODE bool_t try_init_kernel(
 
     init_core_state(initial);
 
-    /* convert the remaining free memory into UT objects and provide the caps *///QT 其余的内存转化为untyped memory
+    /* convert the remaining free memory into UT objects and provide the caps */
     if (!create_untypeds(
             root_cnode_cap,
             boot_mem_reuse_reg)) {

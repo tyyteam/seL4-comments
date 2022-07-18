@@ -141,4 +141,4 @@ interrupt:
   STORE   x1, (34*REGBYTES)(t0)/*QT 根据上文sepc，保存中断指令的返回地址(=中断返回地址)。*/
   j c_handle_interrupt
 //单核时，cpu寄存器t0中始终保留这sscratch的值，指向当前上下文的起始处。
-//smp时，cpu中sscratch-2的位置存当前t0，sscratch-1的位置存当前上下文的指针，sscratch存可用区域？
+//smp时，cpu中sscratch-2的位置存当前t0，sscratch-1的位置存当前上下文的指针，sscratch存可用区域。

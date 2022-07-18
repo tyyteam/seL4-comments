@@ -119,7 +119,7 @@ typedef struct user_context user_context_t;
 static inline void Arch_initContext(user_context_t *context)
 {
     /* Enable supervisor interrupts (when going to user-mode) */
-    context->registers[SSTATUS] = SSTATUS_SPIE;
+    context->registers[SSTATUS] = SSTATUS_SPIE;//使能中断
 }
 
 static inline word_t CONST sanitiseRegister(register_t reg, word_t v, bool_t archInfo)

@@ -227,7 +227,7 @@ static BOOT_CODE bool_t try_init_kernel(
     */
     region_t boot_mem_reuse_reg = paddr_to_pptr_reg(boot_mem_reuse_p_reg);
     /*CY user image的虚拟位置 */
-    region_t ui_reg = paddr_to_pptr_reg((p_region_t) {//ui-->user image,bi-->boot info
+    region_t ui_reg = paddr_to_pptr_reg((p_region_t) {
         ui_p_reg_start, ui_p_reg_end
     });
     word_t extra_bi_size = 0;
@@ -293,14 +293,14 @@ static BOOT_CODE bool_t try_init_kernel(
         };
     }
 
-    /* The region of the initial thread is the user image + ipcbuf + boot info + extra */ //extra-->extra boot info
+    /* The region of the initial thread is the user image + ipcbuf + boot info + extra */
     word_t extra_bi_size_bits = calculate_extra_bi_size_bits(extra_bi_size);  /*CY extra_bi_size来自于DTB，不然这个值就是0，这里暂时先不管 */
     /*CY initial thread的虚拟空间 */
     v_region_t it_v_reg = {
         .start = ui_v_reg.start,
         .end   = extra_bi_frame_vptr + BIT(extra_bi_size_bits)
     };
-    /*CY 检查一下initial thread区域是否超出用户虚拟空间 */
+    /*CY 检查一下initial thread是否超出用户虚拟空间 */
     if (it_v_reg.end >= USER_TOP) {
         /* Variable arguments for printf() require well defined integer types
          * to work properly. Unfortunately, the definition of USER_TOP differs
@@ -333,11 +333,11 @@ static BOOT_CODE bool_t try_init_kernel(
     /*QT 设置各irq为不活跃状态，时间中断特殊设置，初始化root_cnode_cap的中断cap*/
     init_irqs(root_cnode_cap);
 
-    /* create the bootinfo frame */ //QT设置boot info的数据
+    /* create the bootinfo frame */
     populate_bi_frame(0, CONFIG_MAX_NUM_NODES, ipcbuf_vptr, extra_bi_size);
 
     /* put DTB in the bootinfo block, if present. */
-    seL4_BootInfoHeader header;//QT 将dtb放入bootinfo block
+    seL4_BootInfoHeader header;//bi是指bootinfo
     if (dtb_size > 0) {
         header.id = SEL4_BOOTINFO_HEADER_FDT;
         header.len = sizeof(header) + dtb_size;
@@ -349,7 +349,7 @@ static BOOT_CODE bool_t try_init_kernel(
         extra_bi_offset += dtb_size;
     }
 
-    if (extra_bi_size > extra_bi_offset) {//QT 填充boot info block 的剩余部分
+    if (extra_bi_size > extra_bi_offset) {
         /* provide a chunk for any leftover padding in the extended boot info */
         header.id = SEL4_BOOTINFO_HEADER_PADDING;
         header.len = (extra_bi_size - extra_bi_offset);
@@ -358,7 +358,7 @@ static BOOT_CODE bool_t try_init_kernel(
 
     /* Construct an initial address space with enough virtual addresses
      * to cover the user image + ipc buffer and bootinfo frames */
-    it_pd_cap = create_it_address_space(root_cnode_cap, it_v_reg);//QT it-->initial thread,pd是？
+    it_pd_cap = create_it_address_space(root_cnode_cap, it_v_reg);
     if (cap_get_capType(it_pd_cap) == cap_null_cap) {
         printf("ERROR: address space creation for initial thread failed\n");
         return false;
@@ -419,7 +419,7 @@ static BOOT_CODE bool_t try_init_kernel(
     ndks_boot.bi_frame->userImageFrames = create_frames_ret.region;
 
     /* create the initial thread's ASID pool */
-    it_ap_cap = create_it_asid_pool(root_cnode_cap);//ap-->asid pool
+    it_ap_cap = create_it_asid_pool(root_cnode_cap);
     if (cap_get_capType(it_ap_cap) == cap_null_cap) {
         printf("ERROR: could not create ASID pool for initial thread\n");
         return false;
@@ -453,7 +453,7 @@ static BOOT_CODE bool_t try_init_kernel(
 
     init_core_state(initial);
 
-    /* convert the remaining free memory into UT objects and provide the caps *///QT 其余的内存转化为untyped memory
+    /* convert the remaining free memory into UT objects and provide the caps */
     if (!create_untypeds(
             root_cnode_cap,
             boot_mem_reuse_reg)) {

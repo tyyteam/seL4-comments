@@ -357,7 +357,7 @@ void schedule(void)
     //单核NODE_STATE无意义
     if (NODE_STATE(ksSchedulerAction) != SchedulerAction_ResumeCurrentThread) {//如果不是恢复当前线程
         bool_t was_runnable;
-        if (isSchedulable(NODE_STATE(ksCurThread))) {//刚启动时，ksCurThread就是ksIdleThread
+        if (isSchedulable(NODE_STATE(ksCurThread))) {//刚启动时，ksCurThread就是ksIdleThread，
             was_runnable = true;
             SCHED_ENQUEUE_CURRENT_TCB;//如果可以调度，将tcb加入调度队列头
         } else {
@@ -373,11 +373,11 @@ void schedule(void)
              * match fast path.
              * Don't look at ksCurThread prio when it's idle, to respect
              * information flow in non-fastpath cases. */
-            bool_t fastfail =//true
-                NODE_STATE(ksCurThread) == NODE_STATE(ksIdleThread)//true，空闲进程不看它的优先级
+            bool_t fastfail =
+                NODE_STATE(ksCurThread) == NODE_STATE(ksIdleThread)
                 || (candidate->tcbPriority < NODE_STATE(ksCurThread)->tcbPriority);
             if (fastfail &&
-                !isHighestPrio(ksCurDomain, candidate->tcbPriority)) {//根线程是最高的优先级
+                !isHighestPrio(ksCurDomain, candidate->tcbPriority)) {
                 SCHED_ENQUEUE(candidate);
                 /* we can't, need to reschedule */
                 NODE_STATE(ksSchedulerAction) = SchedulerAction_ChooseNewThread;
@@ -389,7 +389,7 @@ void schedule(void)
                 SCHED_APPEND(candidate);
                 NODE_STATE(ksSchedulerAction) = SchedulerAction_ChooseNewThread;
                 scheduleChooseNewThread();
-            } else {//riscv走else
+            } else {
                 assert(candidate != NODE_STATE(ksCurThread));
                 switchToThread(candidate);
             }

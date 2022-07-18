@@ -38,7 +38,7 @@ static inline CONST word_t l1index_to_prio(word_t l1index)
 
 static inline bool_t PURE isRunnable(const tcb_t *thread)
 {
-    switch (thread_state_get_tsType(thread->tcbState)) {//检查tcb_state的状态字数组的首个元素，在build文件夹下
+    switch (thread_state_get_tsType(thread->tcbState)) {//检查tcb_state的状态字的第一个
     case ThreadState_Running:
     case ThreadState_Restart:
 #ifdef CONFIG_VTX
@@ -66,18 +66,17 @@ static inline prio_t getHighestPrio(word_t dom)
 
     /* it's undefined to call clzl on 0 */
     assert(NODE_STATE(ksReadyQueuesL1Bitmap)[dom] != 0);
-//clzl(x)，取leading 0 of x，starting from Most Significant Bit
-//l1index = 1<<6 - 1 - clzl(x)
+
     l1index = wordBits - 1 - clzl(NODE_STATE(ksReadyQueuesL1Bitmap)[dom]);
     l1index_inverted = invert_l1index(l1index);
-    assert(NODE_STATE(ksReadyQueuesL2Bitmap)[dom][l1index_inverted] != 0);//clzl无意义
+    assert(NODE_STATE(ksReadyQueuesL2Bitmap)[dom][l1index_inverted] != 0);
     l2index = wordBits - 1 - clzl(NODE_STATE(ksReadyQueuesL2Bitmap)[dom][l1index_inverted]);
     return (l1index_to_prio(l1index) | l2index);
 }
 
 static inline bool_t isHighestPrio(word_t dom, prio_t prio)
 {
-    return NODE_STATE(ksReadyQueuesL1Bitmap)[dom] == 0 ||//优先级队列首个元素最高优先级为0，或者prio大于等于dom最高prio
+    return NODE_STATE(ksReadyQueuesL1Bitmap)[dom] == 0 ||
            prio >= getHighestPrio(dom);
 }
 

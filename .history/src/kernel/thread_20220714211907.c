@@ -389,7 +389,7 @@ void schedule(void)
                 SCHED_APPEND(candidate);
                 NODE_STATE(ksSchedulerAction) = SchedulerAction_ChooseNewThread;
                 scheduleChooseNewThread();
-            } else {//riscv走else
+            } else {
                 assert(candidate != NODE_STATE(ksCurThread));
                 switchToThread(candidate);
             }

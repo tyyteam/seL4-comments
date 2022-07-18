@@ -319,7 +319,7 @@ BOOT_CODE word_t calculate_extra_bi_size_bits(word_t extra_size)
     }
     return msb;
 }
-//QT 写一些boot info的信息
+
 BOOT_CODE void populate_bi_frame(node_id_t node_id, word_t num_nodes,
                                  vptr_t ipcbuf_vptr, word_t extra_bi_size)
 {
