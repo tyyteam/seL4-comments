@@ -190,7 +190,7 @@ BOOT_CODE void map_it_pt_cap(cap_t vspace_cap, cap_t pt_cap)
     pte_t *lvl1pt = PTE_PTR(pptr_of_cap(vspace_cap));
 
     /* pt to be mapped */
-    pte_t *pt   = PTE_PTR(pptr_of_cap(pt_cap));
+    pte_t *pt = PTE_PTR(pptr_of_cap(pt_cap));
 
     /* Get PT slot to install the address in */
     pt_ret = lookupPTSlot(lvl1pt, vptr);
