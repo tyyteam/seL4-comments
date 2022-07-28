@@ -129,5 +129,5 @@ extern paddr_t ksUserLogBuffer;
 
 #define MODE_NODE_STATE(_state)    MODE_NODE_STATE_ON_CORE(_state, getCurrentCPUIndex())
 #define ARCH_NODE_STATE(_state)    ARCH_NODE_STATE_ON_CORE(_state, getCurrentCPUIndex())
-#define NODE_STATE(_state)         NODE_STATE_ON_CORE(_state, getCurrentCPUIndex())
-
+#define NODE_STATE(_state)         NODE_STATE_ON_CORE(_state, getCurrentCPUIndex())//QT 非SMP情况下跳转到本文件49行：#define NODE_STATE_ON_CORE(_state, _core)      _state
+//QT 获取cpu节点的状态，非SMP时就是_state

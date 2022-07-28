@@ -93,7 +93,7 @@ typedef word_t notification_state_t;
 #define TCB_CTE_PTR(r,i) (((cte_t *)(r))+(i))
 #define TCB_REF(p)       ((word_t)(p))
 
-/* Generate a cte_t pointer from a tcb_t pointer */
+/* Generate a cte_t pointer from a tcb_t pointer */ //cte capability table entry
 #define TCB_PTR_CTE_PTR(p,i) \
     (((cte_t *)((word_t)(p)&~MASK(seL4_TCBBits)))+(i))
 
@@ -248,7 +248,7 @@ struct tcb {
     arch_tcb_t tcbArch;
 
     /* Thread state, 3 words */
-    thread_state_t tcbState;
+    thread_state_t tcbState;//见include/object/structures.h的具体状态
 
     /* Notification that this TCB is bound to. If this is set, when this TCB waits on
      * any sync endpoint, it may receive a signal from a Notification object.

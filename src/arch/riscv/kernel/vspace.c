@@ -601,16 +601,16 @@ void setVMRoot(tcb_t *tcb)
     pte_t *lvl1pt;
     findVSpaceForASID_ret_t  find_ret;
 
-    threadRoot = TCB_PTR_CTE_PTR(tcb, tcbVTable)->cap;
+    threadRoot = TCB_PTR_CTE_PTR(tcb, tcbVTable)->cap;//取得thread的root cap
 
-    if (cap_get_capType(threadRoot) != cap_page_table_cap) {
+    if (cap_get_capType(threadRoot) != cap_page_table_cap) {//如果不是页表的cap
         setVSpaceRoot(kpptr_to_paddr(&kernel_root_pageTable), 0);
         return;
     }
 
-    lvl1pt = PTE_PTR(cap_page_table_cap_get_capPTBasePtr(threadRoot));
+    lvl1pt = PTE_PTR(cap_page_table_cap_get_capPTBasePtr(threadRoot));//如果是页表cap，获取capPTBasePtr
 
-    asid = cap_page_table_cap_get_capPTMappedASID(threadRoot);
+    asid = cap_page_table_cap_get_capPTMappedASID(threadRoot);//asid 是一个word
     find_ret = findVSpaceForASID(asid);
     if (unlikely(find_ret.status != EXCEPTION_NONE || find_ret.vspace_root != lvl1pt)) {
         setVSpaceRoot(kpptr_to_paddr(&kernel_root_pageTable), 0);

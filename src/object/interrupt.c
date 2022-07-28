@@ -265,12 +265,12 @@ bool_t isIRQActive(irq_t irq)
 
 void setIRQState(irq_state_t irqState, irq_t irq)
 {
-    intStateIRQTable[IRQT_TO_IDX(irq)] = irqState;
+    intStateIRQTable[IRQT_TO_IDX(irq)] = irqState;//QT 设置为参数的irqState状态
 #if defined ENABLE_SMP_SUPPORT && defined CONFIG_ARCH_ARM
     if (IRQ_IS_PPI(irq) && IRQT_TO_CORE(irq) != getCurrentCPUIndex()) {
         doRemoteMaskPrivateInterrupt(IRQT_TO_CORE(irq), irqState == IRQInactive, IRQT_TO_IDX(irq));
         return;
     }
 #endif
-    maskInterrupt(irqState == IRQInactive, irq);
+    maskInterrupt(irqState == IRQInactive, irq);//QT 屏蔽中断
 }
