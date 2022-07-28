@@ -445,6 +445,7 @@ static BOOT_CODE bool_t try_init_kernel(
         return false;
     }
 
+    /*CY 这里设置了ksSchedulerAction指向initial thread */
     init_core_state(initial);
 
     /* convert the remaining free memory into UT objects and provide the caps */

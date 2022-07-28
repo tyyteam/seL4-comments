@@ -354,19 +354,22 @@ void schedule(void)
     awaken();
     checkDomainTime();
 #endif
-
+    /*CY 若Scheduler不处于恢复当前线程的状态，ksSchedulerAction在kernel/src/model/statedata.c中定义 */
     if (NODE_STATE(ksSchedulerAction) != SchedulerAction_ResumeCurrentThread) {
         bool_t was_runnable;
+        /*CY ksCurThread指向当前线程，看是否可被调度 */
         if (isSchedulable(NODE_STATE(ksCurThread))) {
             was_runnable = true;
+            /*CY Add TCB to the head of a scheduler queue */
             SCHED_ENQUEUE_CURRENT_TCB;
         } else {
             was_runnable = false;
         }
-
+        /*CY 若Scheduler处于选择新线程的状态中 */
         if (NODE_STATE(ksSchedulerAction) == SchedulerAction_ChooseNewThread) {
             scheduleChooseNewThread();
         } else {
+            /*CY 这时ksSchedulerAction指向了要切换的线程 */
             tcb_t *candidate = NODE_STATE(ksSchedulerAction);
             assert(isSchedulable(candidate));
             /* Avoid checking bitmap when ksCurThread is higher prio, to
@@ -418,6 +421,7 @@ void chooseThread(void)
     tcb_t *thread;
 
     if (numDomains > 1) {
+        /*CY ksCurDomain：Currently active domain */
         dom = ksCurDomain;
     } else {
         dom = 0;
