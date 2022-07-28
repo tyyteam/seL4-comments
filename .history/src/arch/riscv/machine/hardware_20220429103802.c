@@ -99,7 +99,7 @@ static inline irq_t getActiveIRQ(void)
     irq_t *active_irq_slot = &active_irq[CURRENT_CPU_INDEX()];
 
     /* If an interrupt is currently active, then return it. */
-    irq_t irq = *active_irq_slot;//查看槽里有无活跃irq
+    irq_t irq = *active_irq_slot;
     if (IS_IRQ_VALID(irq)) {
         return irq;
     }

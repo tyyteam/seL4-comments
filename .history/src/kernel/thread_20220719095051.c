@@ -450,7 +450,7 @@ void switchToThread(tcb_t *thread)
 #ifdef CONFIG_BENCHMARK_TRACK_UTILISATION
     benchmark_utilisation_switch(NODE_STATE(ksCurThread), thread);
 #endif
-    Arch_switchToThread(thread);//切换线程，设置线程虚拟空间的根页表地址。跳到src/arch/riscv/kernel/thread.c
+    Arch_switchToThread(thread);//切换线程，设置线程虚拟空间的根。跳到src/arch/riscv/kernel/thread.c
     tcbSchedDequeue(thread);//将线程的tcb从队列中取出。跳到src/object/tcb.c
     NODE_STATE(ksCurThread) = thread;
 }

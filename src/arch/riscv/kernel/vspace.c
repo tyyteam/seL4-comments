@@ -617,7 +617,7 @@ void setVMRoot(tcb_t *tcb)
         return;
     }
 
-    setVSpaceRoot(addrFromPPtr(lvl1pt), asid);
+    setVSpaceRoot(addrFromPPtr(lvl1pt), asid);//riscv的调试路线
 }
 
 bool_t CONST isValidVTableRoot(cap_t cap)

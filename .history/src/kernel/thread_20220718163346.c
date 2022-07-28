@@ -46,7 +46,7 @@ void activateThread(void)//先schedule再activateThread
 #ifdef CONFIG_VTX
     case ThreadState_RunningVM:
 #endif
-        break;//riscv的tcbState是ThreadState_Running,然后退出当前函数，进入head.S的la ra, restore_user_context
+        break;
 
     case ThreadState_Restart: {
         word_t pc;
@@ -450,8 +450,8 @@ void switchToThread(tcb_t *thread)
 #ifdef CONFIG_BENCHMARK_TRACK_UTILISATION
     benchmark_utilisation_switch(NODE_STATE(ksCurThread), thread);
 #endif
-    Arch_switchToThread(thread);//切换线程，设置线程虚拟空间的根页表地址。跳到src/arch/riscv/kernel/thread.c
-    tcbSchedDequeue(thread);//将线程的tcb从队列中取出。跳到src/object/tcb.c
+    Arch_switchToThread(thread);//跳到src/arch/riscv/kernel/thread.c
+    tcbSchedDequeue(thread);//
     NODE_STATE(ksCurThread) = thread;
 }
 
